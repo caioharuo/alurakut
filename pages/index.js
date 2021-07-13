@@ -5,6 +5,7 @@ import {
   OrkutNostalgicIconSet,
 } from '../src/lib/AlurakutCommons';
 import { ProfileRelationsBoxWrapper } from '../src/components/ProfileRelations';
+import axios from 'axios';
 
 function ProfileSidebar({ githubUser }) {
   return (
@@ -17,7 +18,7 @@ function ProfileSidebar({ githubUser }) {
   );
 }
 
-export default function Home() {
+export default function Home({ data }) {
   const githubUser = 'caioharuo';
   const favoritePeople = [
     'juunegreiros',
@@ -65,8 +66,32 @@ export default function Home() {
               })}
             </ul>
           </ProfileRelationsBoxWrapper>
+
+          <ProfileRelationsBoxWrapper>
+            <h2 className="smallTitle">Seguidores ({data.length})</h2>
+            <ul>
+              {data.map(({ login }) => {
+                return (
+                  <li>
+                    <a href={`/users/${login}`} key={data.id}>
+                      <img src={`https://github.com/${login}.png`} />
+                      <span>{login}</span>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </ProfileRelationsBoxWrapper>
         </div>
       </MainGrid>
     </>
   );
 }
+
+Home.getInitialProps = async () => {
+  const response = await axios.get(
+    'https://api.github.com/users/caioharuo/followers'
+  );
+
+  return { data: response.data };
+};
