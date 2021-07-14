@@ -13,6 +13,7 @@ export const ProfileRelationsBoxWrapper = styled(Box)`
     object-fit: cover;
     background-position: center center;
     width: 100%;
+    min-width: 88px;
     height: 100%;
     position: relative;
   }
