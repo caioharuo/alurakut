@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+
 import Box from '../src/components/Box';
 import MainGrid from '../src/components/MainGrid';
 import {
@@ -7,7 +8,8 @@ import {
   OrkutNostalgicIconSet,
 } from '../src/lib/AlurakutCommons';
 import { ProfileRelationsBoxWrapper } from '../src/components/ProfileRelations';
-import axios from 'axios';
+
+import { Toaster, toast } from 'react-hot-toast';
 
 function ProfileSidebar({ githubUser }) {
   return (
@@ -30,7 +32,29 @@ function ProfileSidebar({ githubUser }) {
   );
 }
 
-export default function Home({ data }) {
+function ProfileRelationsBox({ title, itens }) {
+  return (
+    <ProfileRelationsBoxWrapper>
+      <h2 className="smallTitle">
+        {title} ({itens.length})
+      </h2>
+      <ul>
+        {/* {followers.map(({ login }) => {
+          return (
+            <li key={login}>
+              <a href={`/users/${login}`}>
+                <img src={`https://github.com/${login}.png`} />
+                <span>{login}</span>
+              </a>
+            </li>
+          );
+        })} */}
+      </ul>
+    </ProfileRelationsBoxWrapper>
+  );
+}
+
+export default function Home() {
   const githubUser = 'caioharuo';
   const [communities, setCommunities] = useState([
     {
@@ -40,6 +64,7 @@ export default function Home({ data }) {
       link: 'https://google.com/',
     },
   ]);
+
   const favoritePeople = [
     'juunegreiros',
     'omariosouto',
@@ -49,6 +74,18 @@ export default function Home({ data }) {
     'diego3g',
   ];
 
+  const [followers, setFollowers] = useState([]);
+
+  useEffect(() => {
+    fetch('https://api.github.com/users/caioharuo/followers')
+      .then((res) => {
+        return res.json();
+      })
+      .then((res) => {
+        setFollowers(res);
+      });
+  }, []);
+
   function handleCreateCommunity(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -56,15 +93,22 @@ export default function Home({ data }) {
     const community = {
       id: new Date().toISOString(),
       title: formData.get('title'),
-      image: formData.get('image'),
+      image: formData.get('image')
+        ? formData.get('image')
+        : `https://picsum.photos/200/300?${Math.random()}`,
       link: formData.get('link'),
     };
 
-    setCommunities([...communities, community]);
+    if (!community.title) {
+      toast.error('Preencha o nome da comunidade!');
+    } else {
+      setCommunities([...communities, community]);
+    }
   }
 
   return (
     <>
+      <Toaster />
       <AlurakutMenu />
       <MainGrid>
         <div className="profileArea" style={{ gridArea: 'profileArea' }}>
@@ -113,6 +157,8 @@ export default function Home({ data }) {
           className="profileRelationsArea"
           style={{ gridArea: 'profileRelationsArea' }}
         >
+          <ProfileRelationsBox title="Seguidores" itens={followers} />
+
           <ProfileRelationsBoxWrapper>
             <h2 className="smallTitle">Comunidades ({communities.length})</h2>
 
@@ -121,13 +167,7 @@ export default function Home({ data }) {
                 return (
                   <li key={community.id}>
                     <a href={community.link} target="_blank">
-                      <img
-                        src={
-                          community.image
-                            ? community.image
-                            : `https://picsum.photos/200/300?${Math.random()}`
-                        }
-                      />
+                      <img src={community.image} />
                       <span>{community.title}</span>
                     </a>
                   </li>
@@ -153,32 +193,8 @@ export default function Home({ data }) {
               })}
             </ul>
           </ProfileRelationsBoxWrapper>
-
-          <ProfileRelationsBoxWrapper>
-            <h2 className="smallTitle">Seguidores ({data.length})</h2>
-            <ul>
-              {data.map(({ login }) => {
-                return (
-                  <li key={login}>
-                    <a href={`/users/${login}`}>
-                      <img src={`https://github.com/${login}.png`} />
-                      <span>{login}</span>
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
-          </ProfileRelationsBoxWrapper>
         </div>
       </MainGrid>
     </>
   );
 }
-
-Home.getInitialProps = async () => {
-  const response = await axios.get(
-    'https://api.github.com/users/caioharuo/followers'
-  );
-
-  return { data: response.data };
-};
