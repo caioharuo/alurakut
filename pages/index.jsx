@@ -56,14 +56,7 @@ function ProfileRelationsBox({ title, itens }) {
 
 export default function Home() {
   const githubUser = 'caioharuo';
-  const [communities, setCommunities] = useState([
-    {
-      id: '01',
-      title: 'Eu odeio acordar cedo',
-      image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg',
-      link: 'https://google.com/',
-    },
-  ]);
+  const [communities, setCommunities] = useState([]);
 
   const favoritePeople = [
     'juunegreiros',
@@ -84,6 +77,31 @@ export default function Home() {
       .then((res) => {
         setFollowers(res);
       });
+
+    fetch('https://graphql.datocms.com/', {
+      method: 'POST',
+      headers: {
+        Authorization: '57d5a19d6e4ff4f06182fffb3b60e3',
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+      },
+      body: JSON.stringify({
+        query: `query {
+        allCommunities {
+          title
+          id
+          imageUrl
+          link
+          creatorSlug
+        }
+      }`,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        const communitiesFromDato = res.data.allCommunities;
+        setCommunities(communitiesFromDato);
+      });
   }, []);
 
   function handleCreateCommunity(event) {
@@ -91,18 +109,30 @@ export default function Home() {
     const formData = new FormData(event.target);
 
     const community = {
-      id: new Date().toISOString(),
       title: formData.get('title'),
-      image: formData.get('image')
+      imageUrl: formData.get('image')
         ? formData.get('image')
         : `https://picsum.photos/200/300?${Math.random()}`,
       link: formData.get('link'),
+      creatorSlug: githubUser,
     };
 
-    if (!community.title) {
-      toast.error('Preencha o nome da comunidade!');
+    if (!community.title || !community.link) {
+      toast.error('Preencha o nome e link da comunidade!');
     } else {
-      setCommunities([...communities, community]);
+      fetch('/api/communities', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(community),
+      }).then(async (res) => {
+        const data = await res.json();
+
+        const community = data.record;
+
+        setCommunities([...communities, community]);
+      });
     }
   }
 
@@ -167,7 +197,7 @@ export default function Home() {
                 return (
                   <li key={community.id}>
                     <a href={community.link} target="_blank">
-                      <img src={community.image} />
+                      <img src={community.imageUrl} />
                       <span>{community.title}</span>
                     </a>
                   </li>
