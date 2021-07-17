@@ -8,14 +8,9 @@ export default async function requestsReceiver(req, res) {
     const record = await client.items.create({
       itemType: '968744',
       ...req.body,
-      //   title: 'Comunidade Teste',
-      //   imageUrl: 'https://github.com/caioharuo.png',
-      //   link: 'https://github.com/caioharuo',
-      //   creatorSlug: 'caioharuo',
     });
 
     res.json({
-      data: 'Algum dado qualquer',
       record: record,
     });
     return;
