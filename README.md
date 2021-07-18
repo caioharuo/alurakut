@@ -20,19 +20,6 @@
   </a>
 </div>
 
-## Installation 💻
-
-1. Clone this repo: `git clone https://github.com/caioharuo/letmeask.git`
-2. Install all the dependencies `yarn` or `npm install`
-3. Create a Project in [Firebase](https://firebase.google.com/)
-4. Active the Google Sing-in method in "Authentication" on Firebase
-5. Add your Firebase credentials to the `firebase.ts` file located in the `services` directory 
-6. Run locally with `yarn start` or `npm start`
-7. Open the project on `localhost:3000/` in your browser.
-8. Enjoy🎉
-
-
-
 </br>
 
-<p align="center">Developed with 💜 by <a href="https://github.com/caioharuo">Caio Hatai</a> on <strong>Next Level Week Together - Rocketseat</strong></p>
+<p align="center">Developed with 💙 by <a href="https://github.com/caioharuo">Caio Hatai</a> on <strong>Imersão React #03 - Alura</strong></p>
